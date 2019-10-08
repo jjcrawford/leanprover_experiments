@@ -36,7 +36,7 @@ open modal
 
 infix `or`:20 := modal.or
 infix `and`:20 := modal.and
-notation R `ϑ` := modalprop R
+notation R `ϑ` := modalprop R -- This is dumb
 
 -- Possible axioms
 
