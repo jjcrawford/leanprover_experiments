@@ -8,7 +8,6 @@ import topology.category.Top.basic
 import algebra.category.Group
 import category_theory.concrete_category.unbundled_hom
 import category_theory.concrete_category.bundled_hom
-import category_theory.epi_mono
 import topology.basic
 -- import category_theory.epi_mono
 
@@ -23,7 +22,9 @@ universe u
 class topological_pair (α : Type u) extends topological_space α :=
 (subset       : set α)
 
-@[reducible] def Pairs : Type (u+1) := bundled topological_pair
+@[reducible] def Pairs : Type (u+1) := bundled topological_pair 
+/- I have no idea if 'Pairs' is standard notation, but this is what Vigleik 
+   wrote on the whiteboard so I'm taking it. -/
 
 namespace Pairs
 
@@ -46,6 +47,9 @@ end
 instance concrete_category_pair_map : unbundled_hom @pair_map :=
 ⟨@pair_map_id, @pair_map.comp⟩
 
+/-- Construct a bundled `Pair` from the underlying type and the typeclass. -/
+def of (X : Type u) [topological_pair X] : Pairs := ⟨X⟩
+
 -- TODO: Can't synthesize type class instance for has_hom Pairs (?!)
 instance hom_has_coe_to_fun (X Y : Pairs.{u}) : has_coe_to_fun (X ⟶ Y) :=
 { F := _, coe := subtype.val }
@@ -53,9 +57,6 @@ instance hom_has_coe_to_fun (X Y : Pairs.{u}) : has_coe_to_fun (X ⟶ Y) :=
 -- TODO: Can't synthesize type class instance for category_struct Pairs (?!)
 @[simp] lemma id_app (X : Pairs.{u}) (x : X) :
   @coe_fn (X ⟶ X) (Pairs.hom_has_coe_to_fun X X) (𝟙 X) x = x := rfl
-
-/-- Construct a bundled `Top` from the underlying type and the typeclass. -/
-def of (X : Type u) [topological_space X] : Top := ⟨X⟩
 
 -- TODO: Can't synthesize type class instance for category Pairs (?!)
 class homology_theory (H : ∀ n : ℕ, Pairs ⥤ CommGroup) (d : ∀ n : ℕ, nat_trans (H n+1) (H n))  :=
