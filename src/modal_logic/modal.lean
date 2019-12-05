@@ -4,26 +4,26 @@ open classical
 
 variable W : Type -- Type of possible worlds
 
-inductive modal 
-| box : modal → modal
-| diamond : modal → modal
-| arrow : modal → modal → modal
-| neg : modal → modal
-| and : modal → modal → modal
-| or : modal → modal → modal
-| atom : (W → Prop) → modal
+inductive formula 
+| box : formula → formula
+| diamond : formula → formula
+| arrow : formula → formula → formula
+| neg : formula → formula
+| and : formula → formula → formula
+| or : formula → formula → formula
+| atom : (W → Prop) → formula -- Atoms are (quoted) predicates (W → Prop)
 
-prefix `□`:20 := modal.box
-prefix `◇`:20 := modal.diamond
-notation `[`p`]` := modal.atom p -- Maybe this is slightly better?
-infix `=>`:20 := modal.arrow
+prefix `□`:20 := formula.box
+prefix `◇`:20 := formula.diamond
+notation `[`p`]` := formula.atom p -- Maybe this is slightly better?
+infix `=>`:20 := formula.arrow
 
 
-instance {W : Type} : has_neg (modal W) := ⟨modal.neg⟩
+instance {W : Type} : has_neg (formula W) := ⟨formula.neg⟩
 
-open modal
+open formula
 
-@[simp] def valuation {W : Type} (R : W → W → Prop) : W → modal W → Prop
+@[simp] def valuation {W : Type} (R : W → W → Prop) : W → formula W → Prop
 | x (□ k) := ∀ y, (R x y) → @valuation y k
 | x (◇ k) := ∃ y, (R x y) ∧ valuation y k
 | x (k1 => k2) := valuation x k1 → valuation x k2
@@ -32,8 +32,8 @@ open modal
 | x (or k1 k2) := valuation x k1 ∨ valuation x k2
 | x [ϕ] := ϕ x -- To evaluate quoted props at a world we just unquote them and apply them to the world
 
-infix `or`:20 := modal.or
-infix `and`:20 := modal.and
+infix `or`:20 := formula.or
+infix `and`:20 := formula.and
 notation R `ϑ` := valuation R -- This is dumb notation, but I need to feed 'R' to it when I evaluate
 
 
@@ -82,7 +82,7 @@ theorem refl_fc_from_refl_axiom {R : W → W → Prop} : @refl_axiom W R → ref
 begin -- I annotated the first proof
 intros r_ax w, -- We assume the reflexivity axiom (□ϕ => ϕ) holds. Consider an arbitrary world w : W
 let ϕ := λ u, R w u, -- Let ϕ represent the proposition "I am pointed at by w"
-apply r_ax, -- Then if ϕ were true at w, it would say "w points to w", which is the refl fc. By the axiom it suffices we show □ϕ  
+apply r_ax ϕ, -- Then if ϕ were true at w, it would say "w points to w", which is the refl fc. By the axiom it suffices we show □ϕ  
 dsimp, -- □ϕ evaluated at w says that any world u pointed at by w should satisfy ϕ, which in turn says that "w points at u"
 intros u hwu, -- Suppose we have such a world u where w points at u. 
 from hwu, -- Then we must show that ϕ holds at u: "w points at u", but we already have this. We are done.
@@ -270,11 +270,11 @@ end
 | R 0 := λ w1 w2, w1=w2
 | R (n+1) := compose W R (relpow R n)
 
-@[simp] def boxpow : ℕ → modal W → modal W
+@[simp] def boxpow : ℕ → formula W → formula W
 | 0 m := m
 | (n+1) m := □ (boxpow n m)
 
-@[simp] def diamondpow : ℕ → modal W → modal W 
+@[simp] def diamondpow : ℕ → formula W → formula W 
 | 0 m := m
 | (n+1) m := ◇ (diamondpow n m)
 
