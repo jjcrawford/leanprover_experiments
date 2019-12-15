@@ -3,7 +3,8 @@ Copyright (c) 2019 Jack Crawford. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jack Crawford
 
-* Here we define some slightly less-common properties that a relation could exhibit
+* Here we define some slightly less-common frame conditions that a relation could exhibit.
+* We prove that these correspond to their associated axiom shapes in common.lean
 -/
 
 
