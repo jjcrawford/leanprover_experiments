@@ -12,14 +12,14 @@ import tactic.rcases
 
 variable W : Type -- Type of possible worlds
 
-inductive modal
+inductive modal {atm : Type}
 | neg : modal → modal
 | box : modal → modal
 | diamond : modal → modal
 | and : modal → modal → modal
 | or : modal → modal → modal
 | arrow : modal → modal → modal
-| atom : (W → Prop) → modal -- Atoms are (quoted) predicates (W → Prop)
+| atom : atm → modal -- Atoms are (quoted) predicates (W → Prop)
 
 open modal
 
@@ -32,9 +32,9 @@ infix `and`:23 := and
 infix `=>`:20 := arrow
 
 
-instance {W : Type} : has_neg (modal W) := ⟨modal.neg⟩
+instance {atm : Type} : has_neg modal := ⟨@modal.neg atm⟩
 
-def modalrepr : modal W → string 
+def modalrepr {atm : Type} [has_repr atm]: @modal atm → string 
 | [ϕ] := "ϕ"
 | (m1 and m2) := (modalrepr m1) ++ " and " ++ (modalrepr m2)
 | (m1 or m2) := (modalrepr m1) ++ " or " ++ (modalrepr m2)
@@ -43,15 +43,15 @@ def modalrepr : modal W → string
 | □m := "□" ++ (modalrepr m)
 | ◇m := "◇" ++ (modalrepr m)
 
-instance : has_repr (modal W) := ⟨modalrepr W⟩
+instance {atm : Type} [has_repr atm] : has_repr modal := ⟨@modalrepr atm _⟩
 
-@[simp] def valuation {W : Type} (R : W → W → Prop) : W → modal W → Prop
-| x (□ k) := ∀ y, (R x y) → @valuation y k
-| x (◇ k) := ∃ y, (R x y) ∧ valuation y k
-| x (k1 => k2) := valuation x k1 → valuation x k2
-| x (neg k) := ¬ (valuation x k)
-| x (k1 and k2) := valuation x k1 ∧ valuation x k2
-| x (k1 or k2) := valuation x k1 ∨ valuation x k2
-| x [ϕ] := ϕ x -- To evaluate quoted props at a world we just unquote them and apply them to the world
+@[simp] def interpretation {W : Type} {atm : Type} (val : atm → W → Prop) (R : W → W → Prop) : W → (@modal atm) → Prop
+| x (□ k) := ∀ y, (R x y) → @interpretation y k
+| x (◇ k) := ∃ y, (R x y) ∧ interpretation y k
+| x (k1 => k2) := interpretation x k1 → interpretation x k2
+| x (neg k) := ¬ (interpretation x k)
+| x (k1 and k2) := interpretation x k1 ∧ interpretation x k2
+| x (k1 or k2) := interpretation x k1 ∨ interpretation x k2
+| x [ϕ] := (val ϕ) x -- To evaluate quoted props at a world we just unquote them and apply them to the world
 
-notation `ϑ` := valuation -- This is dumb notation, but I need to feed 'R' to it when I evaluate. Should probably replace with ⊢ or ⊧ or something but idk
+notation `ϑ` := interpretation -- This is dumb notation, but I need to feed 'R' to it when I evaluate. Should probably replace with ⊢ or ⊧ or something but idk

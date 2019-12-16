@@ -27,11 +27,11 @@ variable W : Type -- Type of possible worlds
 | R 0 := λ w1 w2, w1=w2
 | R (n+1) := compose (relpow R (n)) R
 
-@[simp] def boxpow {W : Type} : ℕ → modal W → modal W
+@[simp] def boxpow (atm : Type) : ℕ → @modal atm → @modal atm
 | 0 m := m
 | (n+1) m := □(boxpow n m)
 
-@[simp] def diamondpow {W : Type} : ℕ → modal W → modal W 
+@[simp] def diamondpow (atm : Type) : ℕ → @modal atm → @modal atm
 | 0 m := m
 | (n+1) m := ◇(diamondpow n m)
 
@@ -49,7 +49,7 @@ lemma induction_max {P: ℕ → ℕ → Prop} {h : ∀ (m n : ℕ), P (m+1) n = 
 end
 
 -- to prove w R^n y → y⊢□^(m+1)ϕ we can show w R^(n+1) z → z ⊢ □^m ϕ, looking "one step into the future"
-lemma boxrel {R : W → W → Prop} (k : modal W) : ∀ (m n : ℕ) (w : W), (∀ (y : W), relpow R n w y → (ϑ R y (boxpow (m+1) k))) = (∀ (y : W), relpow R (n+1) w y → (ϑ R y (boxpow (m) k)))
+lemma boxrel {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) (k : @modal atm) : ∀ (m n : ℕ) (w : W), (∀ (y : W), relpow R n w y → (ϑ val R y (boxpow atm (m+1) k))) = (∀ (y : W), relpow R (n+1) w y → (ϑ val R y (boxpow atm (m) k)))
 | 0 n w     := by simp;
             from ⟨λ h u y rpnwy Ryu, h y rpnwy u Ryu,
                   λ h u rpnwu y Ruy, h y u rpnwu Ruy⟩
@@ -58,7 +58,7 @@ lemma boxrel {R : W → W → Prop} (k : modal W) : ∀ (m n : ℕ) (w : W), (�
             λ h u rpnwu y Ruy z Ryz, h y u rpnwu Ruy z Ryz⟩
 
 -- to prove w R^n y ∧ y⊢◇^(m+1)ϕ we can show w R^(n+1) z ∧ z ⊢ ◇^m ϕ, looking "one step into the future"
-lemma diarel {R : W → W → Prop} (k : modal W) : ∀ (m n : ℕ) (w : W), (∃ (y : W), relpow R n w y ∧ (ϑ R y (diamondpow (m+1) k))) = (∃ (y : W), relpow R (n+1) w y ∧ (ϑ R y (diamondpow (m) k)))
+lemma diarel {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) (k : @modal atm) : ∀ (m n : ℕ) (w : W), (∃ (y : W), relpow R n w y ∧ (ϑ val R y (diamondpow atm (m+1) k))) = (∃ (y : W), relpow R (n+1) w y ∧ (ϑ val R y (diamondpow atm (m) k)))
 | 0 n w     := by simp;
             from ⟨λ ⟨u, ⟨rpnwu, ⟨y, ⟨Ruy, rvyk⟩⟩⟩⟩, ⟨y, ⟨⟨u, ⟨rpnwu, Ruy⟩⟩, rvyk⟩⟩,
                   λ ⟨y, ⟨⟨u, ⟨rpnwu, Ruy⟩⟩, rvyk⟩⟩, ⟨u, ⟨rpnwu, ⟨y, ⟨Ruy, rvyk⟩⟩⟩⟩⟩
@@ -67,52 +67,52 @@ lemma diarel {R : W → W → Prop} (k : modal W) : ∀ (m n : ℕ) (w : W), (�
                  λ ⟨y, ⟨⟨u, ⟨rpnwu, Ruy⟩⟩, ⟨z, ⟨Ryz, zdpmk⟩⟩⟩⟩, ⟨u, ⟨rpnwu, ⟨y, ⟨Ruy, ⟨z, ⟨Ryz, zdpmk⟩⟩⟩⟩⟩⟩⟩
 
 -- combine above two lemmas to show that  w R^m y → y⊢□^n ϕ is satisfied when w R^(m+n) z → z⊢ϕ is satisfied, looking "all the way into the future"
-lemma boxrel2 {R : W → W → Prop} : ∀ (k : modal W) (m n : ℕ) (w : W), ( ∀ (y : W), relpow R n w y → (ϑ R y (boxpow (m) k))) = (∀ (z : W), relpow R (n+m) w z → (ϑ R z (boxpow (0) k)))
+lemma boxrel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m n : ℕ) (w : W), ( ∀ (y : W), relpow R n w y → (ϑ val R y (boxpow atm (m) k))) = (∀ (z : W), relpow R (n+m) w z → (ϑ val R z (boxpow atm (0) k)))
 | k 0 n w := by refl
 | k (m+1) n w := begin
-    have H, from @induction_max (λ i j, (∀ (y : W), relpow R j w y → valuation R y (boxpow i k))) (λ i j : ℕ, @boxrel W R k i j w) (m+1) n,
+    have H, from @induction_max (λ i j, (∀ (y : W), relpow R j w y → interpretation val R y (boxpow atm i k))) (λ i j : ℕ, @boxrel W R atm val  k i j w) (m+1) n,
     simp at H,
     simp,
     from H,
 end
 
 -- combine above two lemmas to show that  w R^m y ∧ y⊢◇^n ϕ is satisfied when w R^(m+n) z ∧ z⊢ϕ is satisfied, looking "all the way into the future"
-lemma diarel2 {R : W → W → Prop} : ∀ (k : modal W) (m n : ℕ) (w : W), (∃ (y : W), relpow R n w y ∧ (ϑ R y (diamondpow (m) k))) = (∃ (z : W), relpow R (n+m) w z ∧ (ϑ R z (diamondpow (0) k)))
+lemma diarel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m n : ℕ) (w : W), (∃ (y : W), relpow R n w y ∧ (ϑ val R y (diamondpow atm (m) k))) = (∃ (z : W), relpow R (n+m) w z ∧ (ϑ val R z (diamondpow atm (0) k)))
 | k 0 n w := by refl
 | k (m+1) n w := begin
-    have H, from @induction_max (λ i j, (∃ (y : W), relpow R j w y ∧ valuation R y (diamondpow i k))) (λ i j : ℕ, @diarel W R k i j w) (m+1) n,
+    have H, from @induction_max (λ i j, (∃ (y : W), relpow R j w y ∧ interpretation val R y (diamondpow atm i k))) (λ i j : ℕ, @diarel W R atm val k i j w) (m+1) n,
     simp at H,
     simp,
     from H,
 end
 
 -- corollary: w⊢□^n ϕ is satisfied when w R^n z → z ⊢ϕ is satisfied 
-@[simp] lemma boxrel3 {R : W → W → Prop} : ∀ (k : modal W) (m : ℕ) (w : W), ϑ R w (boxpow m k) = ∀ z, (relpow R m w z) → (ϑ R z k) :=
+@[simp] lemma boxrel3 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m : ℕ) (w : W), ϑ val R w (boxpow atm m k) = ∀ z, (relpow R m w z) → (ϑ val R z k) :=
 begin
     intros k m w,
-    have H, from @boxrel2 W R k m 0 w,
+    have H, from @boxrel2 W R atm val k m 0 w,
     simp at H,
     simp,
     from H,
 end
 
 -- corollary: w⊢◇^n ϕ is satisfied when w R^n z ∧ z ⊢ϕ is satisfied 
-@[simp] lemma diarel3 {R : W → W → Prop} : ∀ (k : modal W) (m : ℕ), ∀ (w : W), ϑ R w (diamondpow m k) = ∃ z, (relpow R m w z) ∧ (ϑ R z k) :=
+@[simp] lemma diarel3 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m : ℕ), ∀ (w : W), ϑ val R w (diamondpow atm m k) = ∃ z, (relpow R m w z) ∧ (ϑ val R z k) :=
 begin
     intros k m w,
-    have H, from @diarel2 W R k m 0 w,
+    have H, from @diarel2 W R atm val k m 0 w,
     simp at H,
     simp,
     from H,
 end
 
 -- If ϕ is the proposition [λ u, w R^n u] then w⊢□^n ϕ is always true. 
-lemma boxpow_of_relpow {R : W → W → Prop} : ∀ (w : W) (n : ℕ), (ϑ R w (boxpow n [λ u, relpow R n w u]))
+lemma boxpow_of_relpow {R : W → W → Prop} : ∀ (w : W) (n : ℕ), (ϑ id R w (boxpow (W → Prop) n [λ u, relpow R n w u]))
 | w n := by simp
 
 -- The "General Axiom" as it is referred to by https://plato.stanford.edu/entries/logic-modal/#GenAxi
 @[simp] def hijk_axiom {R : W → W → Prop} (h i j k : ℕ) : Prop := 
-∀ (ϕ : modal W) (x : W), ϑ R x ((diamondpow h (boxpow i ϕ)) => (boxpow j (diamondpow k ϕ)))
+∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), ϑ val R x ((diamondpow atm h (boxpow atm i ϕ)) => (boxpow atm j (diamondpow atm k ϕ)))
 
 -- The corresponding frame condition for the General Axiom
 @[simp] def hijk_fc {R : W → W → Prop} (h i j k : ℕ) : Prop :=
@@ -121,10 +121,11 @@ lemma boxpow_of_relpow {R : W → W → Prop} : ∀ (w : W) (n : ℕ), (ϑ R w (
 -- The big result: We prove the result by Lemmon and Scott (1977) about the general axiom and its corresponding frame condition:
 
 -- The hijk-convergence frame condition follows from the general axiom
-theorem LemmonScott_fc_from_axiom {R : W → W → Prop} : ∀ (h i j k : ℕ), (@hijk_axiom W R h i j k) → (@hijk_fc W R h i j k) 
+theorem LemmonScott_fc_from_axiom {R : W → W → Prop} : ∀ (h i j k : ℕ),  (@hijk_axiom W R h i j k) → (@hijk_fc W R h i j k) 
 | h i j k ax := begin
     rintros w v u ⟨rphwv, rpjwu⟩,
-    have H₂ : valuation R w (boxpow j (diamondpow k [(λz, relpow R i v z)])),
+    have H₂ : interpretation id R w (boxpow (W → Prop) j (diamondpow (W → Prop) k [(λz, relpow R i v z)])),
+    dsimp at ax,
     apply ax,
     simp,
     from ⟨v, ⟨rphwv, λ z rpivz, rpivz⟩⟩,
@@ -140,7 +141,7 @@ end
 -- The general axiom follows from the corresponding hijk-convergence frame condition
 theorem LemmonScott_axiom_from_fc {R : W → W → Prop} : ∀ (h i j k : ℕ), (@hijk_fc W R h i j k) → (@hijk_axiom W R h i j k)
 | h i j k fc := begin
-    intros ϕ w hh,
+    intros _ _ ϕ w hh,
     simp at hh,
     simp,
     intros y rpjwy,
@@ -151,7 +152,6 @@ theorem LemmonScott_axiom_from_fc {R : W → W → Prop} : ∀ (h i j k : ℕ), 
 end
 
 
-
 -- Corollary: 
 lemma contrapositive_fc {R : W → W → Prop} : ∀ (h i j k : ℕ), (@hijk_fc W R h i j k) → (@hijk_fc W R j k h i) :=
 λ _ _ _ _ ax1 w v u ⟨Rpjwv, Rphwu⟩,
@@ -160,4 +160,5 @@ lemma contrapositive_fc {R : W → W → Prop} : ∀ (h i j k : ℕ), (@hijk_fc 
 
 lemma contrapositive_ax {R : W → W → Prop} : ∀ (h i j k : ℕ), (@hijk_axiom W R h i j k) → (@hijk_axiom W R j k h i) :=
 λ _ _ _ _ ax,
-    LemmonScott_axiom_from_fc _ _ _ _ _ (contrapositive_fc _ _ _ _ _ (LemmonScott_fc_from_axiom _ _ _ _ _ ax))
+@LemmonScott_axiom_from_fc _ _ _ _ _ _ ((contrapositive_fc _ _ _ _ _ (LemmonScott_fc_from_axiom _ _ _ _ _ @ax)))
+
