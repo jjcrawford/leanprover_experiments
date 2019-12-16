@@ -149,3 +149,15 @@ theorem LemmonScott_axiom_from_fc {R : W → W → Prop} : ∀ (h i j k : ℕ), 
     rcases (fc w u y ⟨rphwu, rpjwy⟩) with ⟨z,⟨rpiuz, rpkyz⟩⟩,
     from ⟨z, ⟨rpkyz, HH z rpiuz⟩⟩,
 end
+
+
+
+-- Corollary: 
+lemma contrapositive_fc {R : W → W → Prop} : ∀ (h i j k : ℕ), (@hijk_fc W R h i j k) → (@hijk_fc W R j k h i) :=
+λ _ _ _ _ ax1 w v u ⟨Rpjwv, Rphwu⟩,
+    by rcases (ax1 w u v ⟨Rphwu, Rpjwv⟩) with ⟨x, ⟨Rpiux, Rpkvx⟩⟩;
+    from ⟨x, ⟨Rpkvx, Rpiux⟩⟩
+
+lemma contrapositive_ax {R : W → W → Prop} : ∀ (h i j k : ℕ), (@hijk_axiom W R h i j k) → (@hijk_axiom W R j k h i) :=
+λ _ _ _ _ ax,
+    LemmonScott_axiom_from_fc _ _ _ _ _ (contrapositive_fc _ _ _ _ _ (LemmonScott_fc_from_axiom _ _ _ _ _ ax))
