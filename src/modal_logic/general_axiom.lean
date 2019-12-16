@@ -11,7 +11,7 @@ Authors: Jack Crawford
 * corresponds to the frame condition
 *    (w R^h v) ∧ (w R^j u) → ∃ x, (v R^i x) ∧ (u R^k x)
 * for all worlds w, v, u.
-*
+
 -/
 
 import modal_logic.basic
