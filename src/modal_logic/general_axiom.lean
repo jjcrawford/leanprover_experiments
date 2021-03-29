@@ -15,7 +15,6 @@ Authors: Jack Crawford
 -/
 
 import modal_logic.basic
-import tactic.rcases
 
 variable W : Type -- Type of possible worlds
 
@@ -37,14 +36,13 @@ variable W : Type -- Type of possible worlds
 
 -- if we can decrement m by incrementing n, we can keep doing this until n:=m+n and m:=0  
 lemma induction_max {P: ℕ → ℕ → Prop} {h : ∀ (m n : ℕ), P (m+1) n = P m (n+1)} : Π (m n : ℕ), (P m n) = P 0 (m+n) 
-| 0 n    := by simp
+| 0 n    := by simp only [nat.zero_add]
 | (m+1) n := begin
     apply eq.trans,
     from h m n,
 
     have H₂, from induction_max m (n+1),
-    simp[nat.add] at H₂,
-    simp[nat.add],
+    simp only [nat.add_comm, nat.add_assoc],
     from H₂,
 end
 
@@ -72,7 +70,7 @@ lemma boxrel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : �
 | k (m+1) n w := begin
     have H, from @induction_max (λ i j, (∀ (y : W), relpow R j w y → interpretation val R y (boxpow atm i k))) (λ i j : ℕ, @boxrel W R atm val  k i j w) (m+1) n,
     simp at H,
-    simp,
+    simp[nat.add_comm n (m+1)],
     from H,
 end
 
@@ -82,7 +80,7 @@ lemma diarel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : �
 | k (m+1) n w := begin
     have H, from @induction_max (λ i j, (∃ (y : W), relpow R j w y ∧ interpretation val R y (diamondpow atm i k))) (λ i j : ℕ, @diarel W R atm val k i j w) (m+1) n,
     simp at H,
-    simp,
+    simp[nat.add_comm n (m+1)],
     from H,
 end
 
@@ -91,7 +89,7 @@ end
 begin
     intros k m w,
     have H, from @boxrel2 W R atm val k m 0 w,
-    simp at H,
+    simp[nat.zero_add] at H,
     simp,
     from H,
 end
@@ -101,13 +99,13 @@ end
 begin
     intros k m w,
     have H, from @diarel2 W R atm val k m 0 w,
-    simp at H,
+    simp[nat.zero_add] at H,
     simp,
     from H,
 end
 
--- If ϕ is the proposition [λ u, w R^n u] then w⊢□^n ϕ is always true. 
-lemma boxpow_of_relpow {R : W → W → Prop} : ∀ (w : W) (n : ℕ), (ϑ id R w (boxpow (W → Prop) n [λ u, relpow R n w u]))
+-- If ϕ is the proposition #[λ u, w R^n u] then w⊢□^n ϕ is always true. 
+lemma boxpow_of_relpow {R : W → W → Prop} : ∀ (w : W) (n : ℕ), (ϑ id R w (boxpow (W → Prop) n #[λ u, relpow R n w u]))
 | w n := by simp
 
 -- The "General Axiom" as it is referred to by https://plato.stanford.edu/entries/logic-modal/#GenAxi
@@ -124,7 +122,7 @@ lemma boxpow_of_relpow {R : W → W → Prop} : ∀ (w : W) (n : ℕ), (ϑ id R 
 theorem LemmonScott_fc_from_axiom {R : W → W → Prop} : ∀ (h i j k : ℕ),  (@hijk_axiom W R h i j k) → (@hijk_fc W R h i j k) 
 | h i j k ax := begin
     rintros w v u ⟨rphwv, rpjwu⟩,
-    have H₂ : interpretation id R w (boxpow (W → Prop) j (diamondpow (W → Prop) k [(λz, relpow R i v z)])),
+    have H₂ : interpretation id R w (boxpow (W → Prop) j (diamondpow (W → Prop) k #[(λz, relpow R i v z)])),
     dsimp at ax,
     apply ax,
     simp,

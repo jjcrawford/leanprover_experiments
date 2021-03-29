@@ -13,20 +13,21 @@ import tactic.rcases
 variable W : Type -- Type of possible worlds
 
 inductive modal {atm : Type}
+| atom : atm → modal -- The richest case is when atoms are (quoted) predicates (W → Prop)
 | neg : modal → modal
 | box : modal → modal
 | diamond : modal → modal
 | and : modal → modal → modal
 | or : modal → modal → modal
 | arrow : modal → modal → modal
-| atom : atm → modal -- Atoms are (quoted) predicates (W → Prop)
 
 open modal
 
+
+notation `#[`p`]` := atom p
 prefix `not`:25 := neg
 prefix `□`:25 := box
 prefix `◇`:25 := diamond
-notation `[`p`]` := atom p -- Maybe this is slightly better?
 infix `or`:23 := or
 infix `and`:23 := and
 infix `=>`:20 := arrow
@@ -35,7 +36,7 @@ infix `=>`:20 := arrow
 instance {atm : Type} : has_neg modal := ⟨@modal.neg atm⟩
 
 def modalrepr {atm : Type} [has_repr atm]: @modal atm → string 
-| [ϕ] := "ϕ"
+| #[ϕ] := "ϕ"
 | (m1 and m2) := (modalrepr m1) ++ " and " ++ (modalrepr m2)
 | (m1 or m2) := (modalrepr m1) ++ " or " ++ (modalrepr m2)
 | (m1 => m2) := (modalrepr m1) ++ " => " ++ (modalrepr m2) 
@@ -52,6 +53,6 @@ instance {atm : Type} [has_repr atm] : has_repr modal := ⟨@modalrepr atm _⟩
 | x (neg k) := ¬ (interpretation x k)
 | x (k1 and k2) := interpretation x k1 ∧ interpretation x k2
 | x (k1 or k2) := interpretation x k1 ∨ interpretation x k2
-| x [ϕ] := (val ϕ) x -- To evaluate quoted props at a world we just unquote them and apply them to the world
+| x #[ϕ] := (val ϕ) x 
 
 notation `ϑ` := interpretation -- This is dumb notation, but I need to feed 'R' to it when I evaluate. Should probably replace with ⊢ or ⊧ or something but idk
