@@ -134,12 +134,12 @@ section -- quarantining out the only classical result here. This is really ugly 
     dsimp,
     dsimp[H_fc] at h_fc,
 
-    cases em (∀ (y : W), (R x y) → (∀ (y_1 : W), (R y y_1) → (ϑ val R y_1 ϕ₁)) → (ϑ val R y ϕ₂)),
+    cases classical.em (∀ (y : W), (R x y) → (∀ (y_1 : W), (R y y_1) → (ϑ val R y_1 ϕ₁)) → (ϑ val R y ϕ₂)),
     apply or.inl,
     assumption,
     apply or.inr,
     intros y hxy h2,
-    cases em (ϑ val R y ϕ₁) with H2 H2,
+    cases classical.em (ϑ val R y ϕ₁) with H2 H2,
     assumption,
 
     exfalso,

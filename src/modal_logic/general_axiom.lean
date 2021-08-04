@@ -68,9 +68,11 @@ lemma diarel {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) (k :
 lemma boxrel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m n : ℕ) (w : W), ( ∀ (y : W), relpow R n w y → (ϑ val R y (boxpow atm (m) k))) = (∀ (z : W), relpow R (n+m) w z → (ϑ val R z (boxpow atm (0) k)))
 | k 0 n w := by refl
 | k (m+1) n w := begin
+
     have H, from @induction_max (λ i j, (∀ (y : W), relpow R j w y → interpretation val R y (boxpow atm i k))) (λ i j : ℕ, @boxrel W R atm val  k i j w) (m+1) n,
     simp at H,
-    simp[nat.add_comm n (m+1)],
+    dsimp[nat.add_comm n (m+1)],
+    simp,
     from H,
 end
 
@@ -80,7 +82,8 @@ lemma diarel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : �
 | k (m+1) n w := begin
     have H, from @induction_max (λ i j, (∃ (y : W), relpow R j w y ∧ interpretation val R y (diamondpow atm i k))) (λ i j : ℕ, @diarel W R atm val k i j w) (m+1) n,
     simp at H,
-    simp[nat.add_comm n (m+1)],
+    dsimp[nat.add_comm n (m+1)],
+    simp,
     from H,
 end
 
