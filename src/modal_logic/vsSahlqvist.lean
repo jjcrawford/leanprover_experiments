@@ -5,6 +5,9 @@ import init.data.list.basic
 variable {atm : Type}
 open list
 
+
+
+
 def pv_in : (@modal atm) → list atm 
 | #[p] := [p]
 | not ψ := pv_in ψ

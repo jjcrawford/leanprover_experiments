@@ -3,7 +3,7 @@ Copyright (c) 2019 Jack Crawford. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jack Crawford
 
-* Here we define modal formulae and 
+* Here we define modal formulae and the forcing relation. 
 -/
 
 
@@ -55,4 +55,4 @@ instance {atm : Type} [has_repr atm] : has_repr modal := ⟨@modalrepr atm _⟩
 | x (k1 or k2) := interpretation x k1 ∨ interpretation x k2
 | x #[ϕ] := (val ϕ) x 
 
-notation `ϑ` := interpretation -- This is dumb notation, but I need to feed 'R' to it when I evaluate. Should probably replace with ⊢ or ⊧ or something but idk
+-- notation `(`val`,` R`,` w`)` `⊩` φ := interpretation val R w φ -- Maybe a bit much.

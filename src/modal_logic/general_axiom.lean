@@ -47,7 +47,7 @@ lemma induction_max {P: ℕ → ℕ → Prop} {h : ∀ (m n : ℕ), P (m+1) n = 
 end
 
 -- to prove w R^n y → y⊢□^(m+1)ϕ we can show w R^(n+1) z → z ⊢ □^m ϕ, looking "one step into the future"
-lemma boxrel {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) (k : @modal atm) : ∀ (m n : ℕ) (w : W), (∀ (y : W), relpow R n w y → (ϑ val R y (boxpow atm (m+1) k))) = (∀ (y : W), relpow R (n+1) w y → (ϑ val R y (boxpow atm (m) k)))
+lemma boxrel {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) (k : @modal atm) : ∀ (m n : ℕ) (w : W), (∀ (y : W), relpow R n w y → ( interpretation val R y (boxpow atm (m+1) k))) = (∀ (y : W), relpow R (n+1) w y → (interpretation val R y (boxpow atm (m) k)))
 | 0 n w     := by simp;
             from ⟨λ h u y rpnwy Ryu, h y rpnwy u Ryu,
                   λ h u rpnwu y Ruy, h y u rpnwu Ruy⟩
@@ -56,7 +56,7 @@ lemma boxrel {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) (k :
             λ h u rpnwu y Ruy z Ryz, h y u rpnwu Ruy z Ryz⟩
 
 -- to prove w R^n y ∧ y⊢◇^(m+1)ϕ we can show w R^(n+1) z ∧ z ⊢ ◇^m ϕ, looking "one step into the future"
-lemma diarel {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) (k : @modal atm) : ∀ (m n : ℕ) (w : W), (∃ (y : W), relpow R n w y ∧ (ϑ val R y (diamondpow atm (m+1) k))) = (∃ (y : W), relpow R (n+1) w y ∧ (ϑ val R y (diamondpow atm (m) k)))
+lemma diarel {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) (k : @modal atm) : ∀ (m n : ℕ) (w : W), (∃ (y : W), relpow R n w y ∧ (interpretation val R y (diamondpow atm (m+1) k))) = (∃ (y : W), relpow R (n+1) w y ∧ (interpretation val R y (diamondpow atm (m) k)))
 | 0 n w     := by simp;
             from ⟨λ ⟨u, ⟨rpnwu, ⟨y, ⟨Ruy, rvyk⟩⟩⟩⟩, ⟨y, ⟨⟨u, ⟨rpnwu, Ruy⟩⟩, rvyk⟩⟩,
                   λ ⟨y, ⟨⟨u, ⟨rpnwu, Ruy⟩⟩, rvyk⟩⟩, ⟨u, ⟨rpnwu, ⟨y, ⟨Ruy, rvyk⟩⟩⟩⟩⟩
@@ -65,7 +65,7 @@ lemma diarel {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) (k :
                  λ ⟨y, ⟨⟨u, ⟨rpnwu, Ruy⟩⟩, ⟨z, ⟨Ryz, zdpmk⟩⟩⟩⟩, ⟨u, ⟨rpnwu, ⟨y, ⟨Ruy, ⟨z, ⟨Ryz, zdpmk⟩⟩⟩⟩⟩⟩⟩
 
 -- combine above two lemmas to show that  w R^m y → y⊢□^n ϕ is satisfied when w R^(m+n) z → z⊢ϕ is satisfied, looking "all the way into the future"
-lemma boxrel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m n : ℕ) (w : W), ( ∀ (y : W), relpow R n w y → (ϑ val R y (boxpow atm (m) k))) = (∀ (z : W), relpow R (n+m) w z → (ϑ val R z (boxpow atm (0) k)))
+lemma boxrel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m n : ℕ) (w : W), ( ∀ (y : W), relpow R n w y → (interpretation val R y (boxpow atm (m) k))) = (∀ (z : W), relpow R (n+m) w z → (interpretation val R z (boxpow atm (0) k)))
 | k 0 n w := by refl
 | k (m+1) n w := begin
 
@@ -77,7 +77,7 @@ lemma boxrel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : �
 end
 
 -- combine above two lemmas to show that  w R^m y ∧ y⊢◇^n ϕ is satisfied when w R^(m+n) z ∧ z⊢ϕ is satisfied, looking "all the way into the future"
-lemma diarel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m n : ℕ) (w : W), (∃ (y : W), relpow R n w y ∧ (ϑ val R y (diamondpow atm (m) k))) = (∃ (z : W), relpow R (n+m) w z ∧ (ϑ val R z (diamondpow atm (0) k)))
+lemma diarel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m n : ℕ) (w : W), (∃ (y : W), relpow R n w y ∧ (interpretation val R y (diamondpow atm (m) k))) = (∃ (z : W), relpow R (n+m) w z ∧ (interpretation val R z (diamondpow atm (0) k)))
 | k 0 n w := by refl
 | k (m+1) n w := begin
     have H, from @induction_max (λ i j, (∃ (y : W), relpow R j w y ∧ interpretation val R y (diamondpow atm i k))) (λ i j : ℕ, @diarel W R atm val k i j w) (m+1) n,
@@ -88,7 +88,7 @@ lemma diarel2 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : �
 end
 
 -- corollary: w⊢□^n ϕ is satisfied when w R^n z → z ⊢ϕ is satisfied 
-@[simp] lemma boxrel3 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m : ℕ) (w : W), ϑ val R w (boxpow atm m k) = ∀ z, (relpow R m w z) → (ϑ val R z k) :=
+@[simp] lemma boxrel3 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m : ℕ) (w : W), interpretation val R w (boxpow atm m k) = ∀ z, (relpow R m w z) → (interpretation val R z k) :=
 begin
     intros k m w,
     have H, from @boxrel2 W R atm val k m 0 w,
@@ -98,7 +98,7 @@ begin
 end
 
 -- corollary: w⊢◇^n ϕ is satisfied when w R^n z ∧ z ⊢ϕ is satisfied 
-@[simp] lemma diarel3 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m : ℕ), ∀ (w : W), ϑ val R w (diamondpow atm m k) = ∃ z, (relpow R m w z) ∧ (ϑ val R z k) :=
+@[simp] lemma diarel3 {R : W → W → Prop} {atm : Type} (val : atm → W → Prop) : ∀ (k : @modal atm) (m : ℕ), ∀ (w : W), interpretation val R w (diamondpow atm m k) = ∃ z, (relpow R m w z) ∧ (interpretation val R z k) :=
 begin
     intros k m w,
     have H, from @diarel2 W R atm val k m 0 w,
@@ -108,12 +108,12 @@ begin
 end
 
 -- If ϕ is the proposition #[λ u, w R^n u] then w⊢□^n ϕ is always true. 
-lemma boxpow_of_relpow {R : W → W → Prop} : ∀ (w : W) (n : ℕ), (ϑ id R w (boxpow (W → Prop) n #[λ u, relpow R n w u]))
+lemma boxpow_of_relpow {R : W → W → Prop} : ∀ (w : W) (n : ℕ), (interpretation id R w (boxpow (W → Prop) n #[λ u, relpow R n w u]))
 | w n := by simp
 
 -- The "General Axiom" as it is referred to by https://plato.stanford.edu/entries/logic-modal/#GenAxi
 @[simp] def hijk_axiom {R : W → W → Prop} (h i j k : ℕ) : Prop := 
-∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), ϑ val R x ((diamondpow atm h (boxpow atm i ϕ)) => (boxpow atm j (diamondpow atm k ϕ)))
+∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), interpretation val R x ((diamondpow atm h (boxpow atm i ϕ)) => (boxpow atm j (diamondpow atm k ϕ)))
 
 -- The corresponding frame condition for the General Axiom
 @[simp] def hijk_fc {R : W → W → Prop} (h i j k : ℕ) : Prop :=
