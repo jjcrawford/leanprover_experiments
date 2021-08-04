@@ -46,13 +46,13 @@ def modalrepr {atm : Type} [has_repr atm]: @modal atm → string
 
 instance {atm : Type} [has_repr atm] : has_repr modal := ⟨@modalrepr atm _⟩
 
-@[simp] def interpretation {W : Type} {atm : Type} (val : atm → W → Prop) (R : W → W → Prop) : W → (@modal atm) → Prop
-| x (□ k) := ∀ y, (R x y) → @interpretation y k
-| x (◇ k) := ∃ y, (R x y) ∧ interpretation y k
-| x (k1 => k2) := interpretation x k1 → interpretation x k2
-| x (neg k) := ¬ (interpretation x k)
-| x (k1 and k2) := interpretation x k1 ∧ interpretation x k2
-| x (k1 or k2) := interpretation x k1 ∨ interpretation x k2
+@[simp] def forces {W : Type} {atm : Type} (val : atm → W → Prop) (R : W → W → Prop) : W → (@modal atm) → Prop
+| x (□ k) := ∀ y, (R x y) → @forces y k
+| x (◇ k) := ∃ y, (R x y) ∧ forces y k
+| x (k1 => k2) := forces x k1 → forces x k2
+| x (neg k) := ¬ (forces x k)
+| x (k1 and k2) := forces x k1 ∧ forces x k2
+| x (k1 or k2) := forces x k1 ∨ forces x k2
 | x #[ϕ] := (val ϕ) x 
 
--- notation `(`val`,` R`,` w`)` `⊩` φ := interpretation val R w φ -- Maybe a bit much.
+-- notation `(`val`,` R`,` w`)` `⊩` φ := forces val R w φ -- Maybe a bit much.

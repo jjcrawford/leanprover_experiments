@@ -18,38 +18,38 @@ import modal_logic.basic
 variable W : Type -- Type of possible worlds
 
 
-theorem k_axiom {atm : Type} (val : atm → W → Prop) {ϕ₁ ϕ₂ : @modal atm} {R : W → W → Prop} : ∀ (x : W), interpretation val R x (□(ϕ₁ => ϕ₂) => (□ϕ₁ => □ϕ₂)) :=
+theorem k_axiom {atm : Type} (val : atm → W → Prop) {ϕ₁ ϕ₂ : @modal atm} {R : W → W → Prop} : ∀ (x : W), forces val R x (□(ϕ₁ => ϕ₂) => (□ϕ₁ => □ϕ₂)) :=
 λ _ DAtoB DA y hy, DAtoB y hy (DA y hy)
 
 def refl_axiom {R : W → W → Prop} : Prop := 
-∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), interpretation val R x (□ϕ => ϕ)
+∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), forces val R x (□ϕ => ϕ)
 
 def trans_axiom {R : W → W → Prop} : Prop :=
-∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), interpretation val R x (□ϕ => □□ϕ)
+∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), forces val R x (□ϕ => □□ϕ)
 
 def dense_axiom {R : W → W → Prop} : Prop :=
-∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), interpretation val R x (□□ϕ => □ϕ)
+∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), forces val R x (□□ϕ => □ϕ)
 
 def serial_axiom {R : W → W → Prop} : Prop :=
-∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), interpretation val R x (□ϕ => ◇ϕ)
+∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), forces val R x (□ϕ => ◇ϕ)
  
 def symm_axiom {R : W → W → Prop} : Prop :=
-∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), interpretation val R x (ϕ => □◇ϕ)
+∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), forces val R x (ϕ => □◇ϕ)
 
 def eucl_axiom {R : W → W → Prop} : Prop :=
-∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), interpretation val R x (◇ϕ => □◇ϕ) 
+∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), forces val R x (◇ϕ => □◇ϕ) 
 
 def eucl_axiom_2 {R : W → W → Prop} : Prop :=     -- completely redundant, just for fun
-∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), interpretation val R x (◇□ϕ => □ϕ)
+∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), forces val R x (◇□ϕ => □ϕ)
 
 def eq_axiom {R : W → W → Prop} : Prop := -- A better name for this? ϕ → □ϕ
-∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), interpretation val R x (ϕ => □ϕ)
+∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), forces val R x (ϕ => □ϕ)
 
 def conv_axiom {R : W → W → Prop} : Prop :=
-∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), interpretation val R x (◇□ϕ => □◇ϕ)
+∀ {atm : Type} (val : atm → W → Prop) (ϕ : @modal atm) (x : W), forces val R x (◇□ϕ => □◇ϕ)
 
 def H_axiom {R : W → W → Prop} : Prop :=
-∀ {atm : Type} (val : atm → W → Prop) (ϕ₁ ϕ₂ : @modal atm) (x : W), interpretation val R x (□(□ϕ₁ => ϕ₂) or □(□ϕ₂ => ϕ₁))
+∀ {atm : Type} (val : atm → W → Prop) (ϕ₁ ϕ₂ : @modal atm) (x : W), forces val R x (□(□ϕ₁ => ϕ₂) or □(□ϕ₂ => ϕ₁))
 
 -- Proofs that some common axioms and their frame conditions correspond
 
@@ -134,12 +134,12 @@ section -- quarantining out the only classical result here. This is really ugly 
     dsimp,
     dsimp[H_fc] at h_fc,
 
-    cases classical.em (∀ (y : W), (R x y) → (∀ (y_1 : W), (R y y_1) → (interpretation val R y_1 ϕ₁)) → (interpretation val R y ϕ₂)),
+    cases classical.em (∀ (y : W), (R x y) → (∀ (y_1 : W), (R y y_1) → (forces val R y_1 ϕ₁)) → (forces val R y ϕ₂)),
     apply or.inl,
     assumption,
     apply or.inr,
     intros y hxy h2,
-    cases classical.em (interpretation val R y ϕ₁) with H2 H2,
+    cases classical.em (forces val R y ϕ₁) with H2 H2,
     assumption,
 
     exfalso,
@@ -170,7 +170,7 @@ simp at H1,
 
 cases H1,
 have H2, from H1 y hxy,
-have H3 : (∀ (y_1 : W), (R y y_1) → (interpretation id R y_1 ϕ₁)), 
+have H3 : (∀ (y_1 : W), (R y y_1) → (forces id R y_1 ϕ₁)), 
 intros w hyw,
 simp[ϕ₁],
 from hyw,
@@ -179,7 +179,7 @@ simp[ϕ₂] at H4,
 from or.inr H4,
 
 have H2, from H1 z hxz,
-have H3 : (∀ (y_1 : W), (R z y_1) → (interpretation id R y_1 ϕ₂)), 
+have H3 : (∀ (y_1 : W), (R z y_1) → (forces id R y_1 ϕ₂)), 
 intros w hzw,
 simp[ϕ₂],
 from hzw,
